@@ -7,8 +7,8 @@ public class CreatePoints : MonoBehaviour
 
 
     //list of variables
-    [Range(0f, 100f)] public float surfaceRange;
-    private Vector3 center;
+    [Range(0f, 100f)] public float SurfaceRange;
+    public static Vector3 center;
     public Vector3 size;
     private Vector3 corner;
     public float nodeSize;
@@ -62,13 +62,17 @@ public class CreatePoints : MonoBehaviour
             {
                 for (float z = corner.z; z <= size.z + corner.z; z += nodeSize)
                 {
-                    nodeParentClass.AddNode(++nodeArrayPositionCounter, Instantiate(nodePrefab, new Vector3(x, y, z), new Quaternion(0,0,0,0), this.transform));
+                    nodeParentClass.AddNode(++nodeArrayPositionCounter, Instantiate(nodePrefab, new Vector3(x, y, z), new Quaternion(0,0,0,0), this.transform), center);    //passes the center in order to make the calculation for metaballs
                 }
             }
         }
     }
 
+
+
 }
+
+
 
 //Class that stores a list of all the node objects
 public class nodeHandler
@@ -79,9 +83,9 @@ public class nodeHandler
         nodeList = new node[nodeAmount];
     }
 
-    public void AddNode(int nodeArrayPosition, GameObject nodeObject)
+    public void AddNode(int nodeArrayPosition, GameObject nodeObject, Vector3 center)
     {
-        nodeList[nodeArrayPosition] = new node(ref nodeObject);
+        nodeList[nodeArrayPosition] = new node(ref nodeObject, center);
     }
 }
 
@@ -92,13 +96,20 @@ public class node   //class of nodes
     public Vector3 position;
     public float surfaceLevel;
 
-    public node(ref GameObject nodeObjectReference)
+    public node(ref GameObject nodeObjectReference, Vector3 center)
     {
         NodeProperties nodeScript = nodeObjectReference.GetComponent<NodeProperties>();
-        surfaceLevel = Random.Range(0, 100);
+        surfaceLevel = CalculateMetaballs(nodeObjectReference.transform.position, center);
         nodeScript.SetSurfaceValue(surfaceLevel);
         nodeObject = nodeObjectReference;
         position = nodeObject.transform.position;
+    }
+
+    public float CalculateMetaballs(Vector3 position, Vector3 center)   //returns the value that a node should be, creating a circular shape
+    {
+        //uses inverse-square law to decrease surface level the further out it goes
+        float radius = 300;  //the radius of the formed sphere
+        return Mathf.Min(100, radius * (1 / Mathf.Sqrt(Mathf.Pow(position.x - center.x, 2) + Mathf.Pow(position.y - center.y, 2) + Mathf.Pow(position.z - center.z, 2))));
     }
 
 }
