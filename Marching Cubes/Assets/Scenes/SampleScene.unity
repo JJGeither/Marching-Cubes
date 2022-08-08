@@ -330,8 +330,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84e5d9df62035b94094654c7371778e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  surfaceRange: 0
-  size: {x: 10, y: 10, z: 10}
+  SurfaceRange: 0
+  range: 0
+  renderCubes: 1
+  size: {x: 8, y: 4, z: 10}
   nodeSize: 2
   nodePrefab: {fileID: 4991671390996712357, guid: 9513ff8e9806d874994388dbd56f16a9, type: 3}
 --- !u!4 &1905694049

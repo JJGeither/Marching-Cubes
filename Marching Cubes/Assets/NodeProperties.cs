@@ -12,14 +12,14 @@ public class NodeProperties : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        NodeMaterial = this.gameObject.GetComponent<MeshRenderer>().material;   //instantiates the node material
+        NodeMaterial = this.gameObject.GetComponent<MeshRenderer>().material; //instantiates the node material
         cube = GameObject.Find("Cube Area");
     }
 
     // Update is called once per frame
     void Update()
     {
-        updateColor();  //updates the color of each node
+        updateColor(); //updates the color of each node
         updateVisibility();
     }
 
@@ -34,8 +34,8 @@ public class NodeProperties : MonoBehaviour
         if (cube.GetComponent<CreatePoints>().SurfaceRange <= SurfaceValue)
         {
             this.GetComponent<Renderer>().enabled = true;
-        } else
-            gameObject.GetComponent<Renderer>().enabled = false;
+        }
+        else gameObject.GetComponent<Renderer>().enabled = false;
 
     }
 
