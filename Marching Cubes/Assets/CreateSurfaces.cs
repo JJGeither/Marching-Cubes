@@ -358,7 +358,14 @@ int[,] cornerIndexFromEdge = {
             for (int i = 0; i < 16; i++)
             {
                 if (triTable[cubeBinary, i] != -1)
+                {
+                    //adds the triangles in clockwise order in order to prevent improper face culling
+                    triangles.Add(triTable[cubeBinary, i + 2] + (numCubesRendered * 12));
+                    triangles.Add(triTable[cubeBinary, i + 1] + (numCubesRendered * 12));
                     triangles.Add(triTable[cubeBinary, i] + (numCubesRendered * 12));
+                    i += 2;
+                }
+                    
                 
             }
 
