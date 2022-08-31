@@ -5,15 +5,15 @@ using UnityEngine;
 public class NodeProperties : MonoBehaviour
 {
     //variables
-    private float SurfaceValue;
+    private float surfaceValue;
     private Material NodeMaterial;
-    private GameObject cube;
+    private GameObject Cube;
 
     // Start is called before the first frame update
     void Start()
     {
         NodeMaterial = this.gameObject.GetComponent<MeshRenderer>().material; //instantiates the node material
-        cube = GameObject.Find("Cube Area");
+        Cube = GameObject.Find("Cube Area");
     }
 
     // Update is called once per frame
@@ -25,28 +25,33 @@ public class NodeProperties : MonoBehaviour
 
     public void updateColor()
     {
-        Color lerpedColor = Color.Lerp(Color.black, Color.white, SurfaceValue / 100); //changes color depending on the surface Value with black being low values and white being high values
+        Color lerpedColor = Color.Lerp(Color.black, Color.white, surfaceValue / 100); //changes color depending on the surface Value with black being low values and white being high values
         NodeMaterial.color = lerpedColor;
     }
 
     public void updateVisibility()
     {
-        if (cube.GetComponent<CreatePoints>().SurfaceRange <= SurfaceValue)
+        if (Cube.GetComponent<CreatePoints>().renderNodes)
         {
-            this.GetComponent<Renderer>().enabled = true;
+            if (Cube.GetComponent<CreatePoints>().surfaceRange <= surfaceValue)
+            {
+                this.GetComponent<Renderer>().enabled = true;
+            }
+            else gameObject.GetComponent<Renderer>().enabled = false;
+        } else
+        {
+            gameObject.GetComponent<Renderer>().enabled = false;
         }
-        else gameObject.GetComponent<Renderer>().enabled = false;
-
     }
 
     //getter & setter functions
     public float GetSurfaceValue()
     {
-        return SurfaceValue;
+        return surfaceValue;
     }
 
     public void SetSurfaceValue(float value)
     {
-        SurfaceValue = value;
+        surfaceValue = value;
     }
 }

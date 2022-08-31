@@ -6,22 +6,24 @@ public class CreatePoints : MonoBehaviour
 {
 
     //list of variables
-    [Range(0f, 100)] public float SurfaceRange;
-    [Range(0f, 100)] public float range;
+    [Range(0f, 100)] public float surfaceRange;
+   // [Range(0f, 1000)] public float cubeRange;
     public bool renderCubes;
+    public bool renderNodes = true;
     public static Vector3 center;
     public Vector3 size;
     private Vector3 corner;
     public float nodeSize;
     public GameObject nodePrefab;
     private NodeHandler nodeHandler;
-    private CubeHandler cubeHandler;
+    public CubeHandler cubeHandler;
 
     //references to other objects
 
     // Start is called before the first frame update
     void Start()
     {
+        surfaceRange = 55;
         nodeHandler = new NodeHandler(CalculateNodeAmount(size, nodeSize)); //Allocates space to hold the nodes
         cubeHandler = new CubeHandler(CalculateCubesAmount());  //Allocates space to hold the cubes
         CalculateCorner(transform.position, size);  //Builds cubes from the negative-most corner of the building area
@@ -46,12 +48,9 @@ public class CreatePoints : MonoBehaviour
             int i = 0;
             foreach (Cube cube in cubeHandler.GetList())
             {
-                if (i < range)
-                {
                     Gizmos.color = Color.black;
                     Gizmos.DrawWireCube(cube.getCenter(), new Vector3(nodeSize, nodeSize, nodeSize));
-                    i++;
-                }
+                    i++;   
             }
         }
 
@@ -139,25 +138,40 @@ public class CreatePoints : MonoBehaviour
         Node[] neighbors = new Node[8];
         neighbors[0] = nodeHandler.GetNode(node); //the node
         neighbors[1] = nodeHandler.GetNode(node + 1); //the neightbor directly next to the node along the Z-axis
-        neighbors[2] = nodeHandler.GetNode(node + (int)(size.z / nodeSize) + 1); //the neighbor directly above the node
-        neighbors[3] = nodeHandler.GetNode(node + (int)(size.z / nodeSize) + 2); //the neighbor diagonal to the node on the Z-axis
-        neighbors[4] = nodeHandler.GetNode(node + ((int)(size.z / nodeSize) + 1) * ((int)(size.y / nodeSize) + 1)); //the neighbor directly to the next of the node on the X-axis
-        neighbors[5] = nodeHandler.GetNode(node + ((int)(size.z / nodeSize) + 1) * ((int)(size.y / nodeSize) + 1) + 1); //the neighbor diagonally to the node on the x and z axis
-        neighbors[6] = nodeHandler.GetNode(node + ((int)(size.z / nodeSize) + 1) * ((int)(size.y / nodeSize) + 1) + (int)(size.z / nodeSize) + 1); //the neighbor diagonally across from the node on the y and x axis
-        neighbors[7] = nodeHandler.GetNode(node + ((int)(size.z / nodeSize) + 1) * ((int)(size.y / nodeSize) + 1) + (int)(size.z / nodeSize) + 2); //neighbor directly diagonally from the node
+        neighbors[4] = nodeHandler.GetNode(node + (int)(size.z / nodeSize) + 1); //the neighbor directly above the node
+        neighbors[5] = nodeHandler.GetNode(node + (int)(size.z / nodeSize) + 2); //the neighbor diagonal to the node on the Z-axis
+        neighbors[3] = nodeHandler.GetNode(node + ((int)(size.z / nodeSize) + 1) * ((int)(size.y / nodeSize) + 1)); //the neighbor directly to the next of the node on the X-axis
+        neighbors[2] = nodeHandler.GetNode(node + ((int)(size.z / nodeSize) + 1) * ((int)(size.y / nodeSize) + 1) + 1); //the neighbor diagonally to the node on the x and z axis
+        neighbors[7] = nodeHandler.GetNode(node + ((int)(size.z / nodeSize) + 1) * ((int)(size.y / nodeSize) + 1) + (int)(size.z / nodeSize) + 1); //the neighbor diagonally across from the node on the y and x axis
+        neighbors[6] = nodeHandler.GetNode(node + ((int)(size.z / nodeSize) + 1) * ((int)(size.y / nodeSize) + 1) + (int)(size.z / nodeSize) + 2); //neighbor directly diagonally from the node
+
         return neighbors;
 
-        //     3___________7
+
+
+        //     5___________6
         //     |`          :\
         //     | `         : \
         //     |  `        :  \
-        //     |   2-----------6
+        //     |   4-----------7
         //     |   :       :   :
-        //     1__ : ______5   :
+        //     1__ : ______2   :
         //     `   :        \  :
         //      `  :         \ :
         //       ` :          \:
-        //        `0___________4
+        //        `0___________3
+
+        //     ______5______
+        //     |`          :\
+        //     | 4         : 6
+        //     |  `        10 \
+        //     9   -----7-------
+        //     |   :       :   :
+        //     |__ : _1____:   11
+        //     `   8        \  :
+        //      0  :         2 :
+        //       ` :          \:
+        //        `_____3______:
 
         //  <   ^
         //   \  |
@@ -166,7 +180,11 @@ public class CreatePoints : MonoBehaviour
         //      N - X - >
     }
 
+
+
 }
+
+
 
 //Class that stores a list of all the node objects
 public class NodeHandler
@@ -288,9 +306,9 @@ public class Cube
         float x1 = vertices[0].GetX(),
         y1 = vertices[0].GetY(),
         z1 = vertices[0].GetZ();
-        float x2 = vertices[7].GetX(),
-        y2 = vertices[7].GetY(),
-        z2 = vertices[7].GetZ();
+        float x2 = vertices[6].GetX(),
+        y2 = vertices[6].GetY(),
+        z2 = vertices[6].GetZ();
         center = new Vector3((x1 + x2) / 2, (y1 + y2) / 2, (z1 + z2) / 2);
     }
 
