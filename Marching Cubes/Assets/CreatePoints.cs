@@ -7,7 +7,8 @@ public class CreatePoints : MonoBehaviour
 
     //list of variables
     [Range(0f, 100)] public float surfaceRange;
-   // [Range(0f, 1000)] public float cubeRange;
+    [Range(0f, 10000)] public float cubeRange;
+    [Range(0, 10000)] public int renderRange;
     public bool renderCubes;
     public bool renderNodes = true;
     public static Vector3 center;
@@ -23,7 +24,7 @@ public class CreatePoints : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        surfaceRange = 55;
+        surfaceRange = 73;
         nodeHandler = new NodeHandler(CalculateNodeAmount(size, nodeSize)); //Allocates space to hold the nodes
         cubeHandler = new CubeHandler(CalculateCubesAmount());  //Allocates space to hold the cubes
         CalculateCorner(transform.position, size);  //Builds cubes from the negative-most corner of the building area
@@ -48,9 +49,13 @@ public class CreatePoints : MonoBehaviour
             int i = 0;
             foreach (Cube cube in cubeHandler.GetList())
             {
+                if (i < cubeRange)
+                {
                     Gizmos.color = Color.black;
                     Gizmos.DrawWireCube(cube.getCenter(), new Vector3(nodeSize, nodeSize, nodeSize));
-                    i++;   
+                    i++;
+                }
+  
             }
         }
 
@@ -258,17 +263,17 @@ public class Node //class of nodes
 public class CubeHandler
 {
     public Cube[] cubeList;
-    public int cubeListSize;
+    public int cubeListAmount;
 
     public CubeHandler(int numberOfCubes)
     {
         cubeList = new Cube[numberOfCubes];
-        cubeListSize = 0;
+        cubeListAmount = 0;
     }
 
     public void AddCube(Node[] nodeList)
     {
-        cubeList[cubeListSize++] = new Cube(nodeList);
+        cubeList[cubeListAmount++] = new Cube(nodeList, cubeListAmount);
     }
 
     public Cube[] GetList()
@@ -280,17 +285,22 @@ public class CubeHandler
 public class Cube
 {
     public Node[] vertices; //all the 8 vertices that a cube has
+    public int vertLength;
     public Vector3 center; //the center of the cube
+    public int index;
 
     Cube()
     {
-        vertices = new Node[8];
+        vertLength = 8;
+        vertices = new Node[vertLength];
     }
 
-    public Cube(Node[] nodeList)
+    public Cube(Node[] nodeList, int indexArg)
     {
-        vertices = new Node[8];
-        if (nodeList.Length != 8) Debug.Log("ERROR: array incorrect size for cube class");
+        index = indexArg;
+        vertLength = 8;
+        vertices = new Node[vertLength];
+        if (nodeList.Length != vertLength) Debug.Log("ERROR: array incorrect size for cube class");
 
         nodeList.CopyTo(vertices, 0);
         CalculateCenter();

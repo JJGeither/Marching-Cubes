@@ -321,67 +321,138 @@ int[,] cornerIndexFromEdge = {
 {0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
 {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}};
 
+    Mesh mesh;
+    Vector3[] vertices;
+    int[] triangles;
+
     // Start is called before the first frame update
     void Start()
     {
         createPoints = this.gameObject.GetComponent<CreatePoints>();    //allows script to have access to the nodes
-    }
-
-    public Mesh drawTriangles(List<Vector3> vertices, List<int> triangles)
-    {
-        Mesh mesh = new Mesh();
+        mesh = new Mesh();
         mesh = GetComponent<MeshFilter>().mesh;
-        //mesh.Clear();
 
-        mesh.vertices = vertices.ToArray();
-        mesh.triangles = triangles.ToArray();
+        //StartCoroutine(drawTriangles());
 
-        return mesh;
     }
 
+    public IEnumerator drawTriangles()
+    {
+        int test = createPoints.cubeHandler.cubeListAmount;
+
+        vertices = new Vector3[test * 12];
+        triangles = new int[test * 15];
+
+        int numCube = 0;  //keeps track of the number of cubes and their polygons rendered for access
+        int numTris = 0;
+
+        foreach (Cube cube in createPoints.cubeHandler.cubeList)
+        {
+            //  if (cube.index <= createPoints.renderRange)
+            {
+                //renders single instance of cube configuration
+                short cubeBinary = CalculateBinaryCubeIndex(cube);  //i.e 1000 0000 0000 1100 has edges 2, 3 and 15 being intersected
+
+                if (cubeBinary != 0)
+                {
+                    //determines the vertices
+                    for (int i = 0; i < 12; i++)    //16 represents the edges of a cube
+                    {
+                        int indexA = cornerIndexFromEdge[i, 0];
+                        int indexB = cornerIndexFromEdge[i, 1];
+
+                        Vector3 vertexPos = (cube.vertices[indexA].GetPosition() + cube.vertices[indexB].GetPosition()) / 2;
+                        vertices[i + (numCube * 12)] = vertexPos;
+                    }
+
+                    //determines the triangles
+                    for (int j = 0; triTable[cubeBinary, j] != -1; j += 3)
+                    {
+                        if (triTable[cubeBinary, j] != -1)
+                        {
+                            triangles[numTris + 2] = triTable[cubeBinary, j] + (numCube * 12);
+                            triangles[numTris + 1] = triTable[cubeBinary, j + 1] + (numCube * 12);
+                            triangles[numTris] = triTable[cubeBinary, j + 2] + (numCube * 12);
+                            numTris += 3;
+                            yield return new WaitForSeconds(.1f);
+                            Debug.Log("Cube#: " + numCube + " Tri#: " + numTris / 3);
+                        }
+                    }
+                    numCube++;
+                }
+
+            }
+
+        }
+
+
+    }
+
+    public void drawTriangles2()
+    {
+        int test = createPoints.cubeHandler.cubeListAmount;
+
+        vertices = new Vector3[test * 12];
+        triangles = new int[test * 15];
+
+        int numCube = 0;  //keeps track of the number of cubes and their polygons rendered for access
+        int numTris = 0;
+
+        foreach (Cube cube in createPoints.cubeHandler.cubeList)
+        {
+            //  if (cube.index <= createPoints.renderRange)
+            {
+                //renders single instance of cube configuration
+                short cubeBinary = CalculateBinaryCubeIndex(cube);  //i.e 1000 0000 0000 1100 has edges 2, 3 and 15 being intersected
+
+                if (cubeBinary != 0)
+                {
+                    //determines the vertices
+                    for (int i = 0; i < 12; i++)    //16 represents the edges of a cube
+                    {
+                        int indexA = cornerIndexFromEdge[i, 0];
+                        int indexB = cornerIndexFromEdge[i, 1];
+
+                        Vector3 vertexPos = (cube.vertices[indexA].GetPosition() + cube.vertices[indexB].GetPosition()) / 2;
+                        vertices[i + (numCube * 12)] = vertexPos;
+                    }
+
+                    //determines the triangles
+                    for (int j = 0; triTable[cubeBinary, j] != -1; j += 3)
+                    {
+                        if (triTable[cubeBinary, j] != -1)
+                        {
+                            triangles[numTris + 2] = triTable[cubeBinary, j] + (numCube * 12);
+                            triangles[numTris + 1] = triTable[cubeBinary, j + 1] + (numCube * 12);
+                            triangles[numTris] = triTable[cubeBinary, j + 2] + (numCube * 12);
+                            numTris += 3;
+                            //Debug.Log("Cube#: " + numCube + " Tri#: " + numTris / 3);
+                        }
+                    }
+                    numCube++;
+                }
+
+            }
+
+        }
+
+
+    }
+
+    void updateMesh()
+    {
+        mesh.Clear();
+
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+        mesh.RecalculateNormals();
+    }
 
     // Update is called once per frame
     void Update()
     {
-        List<Vector3> vertices = new List<Vector3>();   
-        List<int> triangles = new List<int>();
-        int numCubesRendered = 0;  //keeps track of the number of cubes and their polygons rendered for access
-        foreach (Cube cube in createPoints.cubeHandler.cubeList)
-        {
-
-            short cubeBinary = CalculateBinaryCubeIndex(cube);  //i.e 1000 0000 0000 1100 has edges 2, 3 and 15 being intersected
-
-            /* Cycles through all the possible edges
-             * and adds a triangle wherever is needed
-             * based upon the tri table
-             */ 
-            for (int i = 0; i < 16; i++)
-            {
-                if (triTable[cubeBinary, i] != -1)
-                {
-                    //adds the triangles in clockwise order in order to prevent improper face culling
-                    triangles.Add(triTable[cubeBinary, i + 2] + (numCubesRendered * 12));
-                    triangles.Add(triTable[cubeBinary, i + 1] + (numCubesRendered * 12));
-                    triangles.Add(triTable[cubeBinary, i] + (numCubesRendered * 12));
-                    i += 2;
-                }
-                    
-                
-            }
-
-            for (int j = 0; j < 12; j++)
-            {
-                //finds the corners that make up the edge
-                int indexA = cornerIndexFromEdge[j, 0];
-                int indexB = cornerIndexFromEdge[j, 1];
-
-                Vector3 vertexPos = (cube.vertices[indexA].GetPosition() + cube.vertices[indexB].GetPosition()) / 2;
-
-                vertices.Add(vertexPos);
-            }
-            numCubesRendered++;
-        }
-        drawTriangles(vertices, triangles);
+        drawTriangles2();
+        updateMesh();
     }
 
     //Calculates the proper index of the cube configuration by using binary in order to represent all edges as a single digit in a short
