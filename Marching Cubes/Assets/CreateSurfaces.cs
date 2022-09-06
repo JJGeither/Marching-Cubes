@@ -336,59 +336,30 @@ int[,] cornerIndexFromEdge = {
 
     }
 
-    public IEnumerator drawTriangles()
+    public Vector3 InterpolateEdge(Node p1, Node p2, float surfaceRange)
     {
-        int test = createPoints.cubeHandler.cubeListAmount;
-
-        vertices = new Vector3[test * 12];
-        triangles = new int[test * 15];
-
-        int numCube = 0;  //keeps track of the number of cubes and their polygons rendered for access
-        int numTris = 0;
-
-        foreach (Cube cube in createPoints.cubeHandler.cubeList)
         {
-            //  if (cube.index <= createPoints.renderRange)
-            {
-                //renders single instance of cube configuration
-                short cubeBinary = CalculateBinaryCubeIndex(cube);  //i.e 1000 0000 0000 1100 has edges 2, 3 and 15 being intersected
+            float mu;
+            Vector3 p;
 
-                if (cubeBinary != 0)
-                {
-                    //determines the vertices
-                    for (int i = 0; i < 12; i++)    //16 represents the edges of a cube
-                    {
-                        int indexA = cornerIndexFromEdge[i, 0];
-                        int indexB = cornerIndexFromEdge[i, 1];
+            if (Mathf.Abs(surfaceRange - p1.surfaceLevel) == 0)
+                return (p1.GetPosition());
+            if (Mathf.Abs(surfaceRange - p2.surfaceLevel) == 0)
+                return (p2.GetPosition());
+            if (Mathf.Abs(p1.surfaceLevel - p2.surfaceLevel) == 0)
+                return (p1.GetPosition());
 
-                        Vector3 vertexPos = (cube.vertices[indexA].GetPosition() + cube.vertices[indexB].GetPosition()) / 2;
-                        vertices[i + (numCube * 12)] = vertexPos;
-                    }
+            //interpolation formula
+            mu = (surfaceRange - p1.surfaceLevel) / (p2.surfaceLevel - p1.surfaceLevel);
+            p.x = p1.GetX() + mu * (p2.GetX() - p1.GetX());
+            p.y = p1.GetY() + mu * (p2.GetY() - p1.GetY());
+            p.z = p1.GetZ() + mu * (p2.GetZ() - p1.GetZ());
 
-                    //determines the triangles
-                    for (int j = 0; triTable[cubeBinary, j] != -1; j += 3)
-                    {
-                        if (triTable[cubeBinary, j] != -1)
-                        {
-                            triangles[numTris + 2] = triTable[cubeBinary, j] + (numCube * 12);
-                            triangles[numTris + 1] = triTable[cubeBinary, j + 1] + (numCube * 12);
-                            triangles[numTris] = triTable[cubeBinary, j + 2] + (numCube * 12);
-                            numTris += 3;
-                            yield return new WaitForSeconds(.1f);
-                            Debug.Log("Cube#: " + numCube + " Tri#: " + numTris / 3);
-                        }
-                    }
-                    numCube++;
-                }
-
-            }
-
+            return (p);
         }
-
-
     }
 
-    public void drawTriangles2()
+    public void DrawTriangles()
     {
         int test = createPoints.cubeHandler.cubeListAmount;
 
@@ -413,7 +384,8 @@ int[,] cornerIndexFromEdge = {
                         int indexA = cornerIndexFromEdge[i, 0];
                         int indexB = cornerIndexFromEdge[i, 1];
 
-                        Vector3 vertexPos = (cube.vertices[indexA].GetPosition() + cube.vertices[indexB].GetPosition()) / 2;
+                        Vector3 vertexPos = InterpolateEdge(cube.vertices[indexA], cube.vertices[indexB], createPoints.surfaceRange);
+                        //Vector3 vertexPos = (cube.vertices[indexA].GetPosition() + cube.vertices[indexB].GetPosition()) / 2;
                         vertices[i + (numCube * 12)] = vertexPos;
                     }
 
@@ -451,7 +423,7 @@ int[,] cornerIndexFromEdge = {
     // Update is called once per frame
     void Update()
     {
-        drawTriangles2();
+        DrawTriangles();
         updateMesh();
     }
 
