@@ -10,13 +10,14 @@ public class CreatePoints : MonoBehaviour
     [Range(0f, 10000)] public float cubeRange;
     [Range(0, 10000)] public int renderRange;
     public bool renderCubes;
-    public bool renderNodes = true;
+    public bool renderNodes;
+    public bool renderAllNodes;
     public static Vector3 center;
     public Vector3 size;
     private Vector3 corner;
     public float nodeSize;
     public GameObject nodePrefab;
-    private NodeHandler nodeHandler;
+    public NodeHandler nodeHandler;
     public CubeHandler cubeHandler;
 
     //references to other objects
@@ -52,7 +53,7 @@ public class CreatePoints : MonoBehaviour
                 if (i < cubeRange)
                 {
                     Gizmos.color = Color.black;
-                    Gizmos.DrawWireCube(cube.getCenter(), new Vector3(nodeSize, nodeSize, nodeSize));
+                    Gizmos.DrawWireCube(cube.GetCenter(), new Vector3(nodeSize, nodeSize, nodeSize));
                     i++;
                 }
   
@@ -101,7 +102,12 @@ public class CreatePoints : MonoBehaviour
         for (int i = 0; i < nodeHandler.GetAmount() - (SizeToNumberOfNodes('y') * SizeToNumberOfNodes('z')); i++) //subtracts from size.z and size.y so that it doesn't go out of bounds
         {
             if (To3D(i, 'z') < SizeToNumberOfNodes('z') - 1 && To3D(i, 'y') < SizeToNumberOfNodes('y') - 1) //if the cube has not reached the end of the z and y axis
-                cubeHandler.AddCube(GetEdges(ref nodeHandler, i));
+            {
+                Node[] vertexList = GetEdges(ref nodeHandler, i);   //gets all the edge positions within a cube
+                cubeHandler.AddCube(vertexList);    //adds cube to cube handler
+                AddCubesToNodeList(vertexList, cubeHandler.cubeListAmount); //adds a reference in the nodes that are within the cube in order to update them easily
+            }
+
         }
     }
 
@@ -185,9 +191,28 @@ public class CreatePoints : MonoBehaviour
         //      N - X - >
     }
 
+    public void AddCubesToNodeList(Node[] nodeList, int indexArg)   //adds the cube indexes to the nodehandler in order to properly update nodes
+    {
+        int vertexPos = 0;
+        foreach (Node node in nodeList)
+        {
+            Node test = nodeHandler.GetNode(node.index - 1);
+            test.AddCubeRef(indexArg, vertexPos++);  //adds reference to the vertex position within the cube
+        }
 
+    }
 
+    public ref NodeHandler GetNodeHandlerRef()
+    {
+        return ref nodeHandler;
+    }
+
+    public ref CubeHandler GetCubeHandlerRef()
+    {
+        return ref cubeHandler;
+    }
 }
+
 
 
 
@@ -204,7 +229,7 @@ public class NodeHandler
 
     public void AddNode(GameObject nodeObject, Vector3 center)
     {
-        nodeList[nodeListSize++] = new Node(ref nodeObject, center);
+        nodeList[nodeListSize++] = new Node(ref nodeObject, center, nodeListSize);
     }
 
     public int GetAmount() //returns the number of nodes within array
@@ -212,9 +237,36 @@ public class NodeHandler
         return nodeListSize;
     }
 
-    public Node GetNode(int position)
+    public ref Node GetNode(int position)
     {
-        return nodeList[position];
+        return ref nodeList[position];
+    }
+
+    public void UpdateNodeValueAtPosition(int position, int value)  //updates the surface value of a node at position value
+    {
+        nodeList[position].surfaceLevel = value;
+    }
+}
+
+public class CubeReference
+{
+    //makes it easier to update the nodes during runtime
+    public int containedCube;  //keeps track of which cubes the node resides in
+    public int containedVertices;  //keeps track of which vertice position within the cube that the node resides, position correlate with the containedCubeList
+
+    public CubeReference(int cubeIndex, int vertexIndex)
+    {
+        containedCube = cubeIndex;
+        containedVertices = vertexIndex;
+    }
+    public int GetVerticeIndex()
+    {
+        return containedVertices;
+    }
+
+    public int GetCubeIndex()
+    {
+        return containedCube;
     }
 }
 
@@ -224,14 +276,34 @@ public class Node //class of nodes
     public GameObject nodeObject;
     Vector3 position;
     public float surfaceLevel;
+    public int index;
+    public List<CubeReference> cubeReference; //keeps track of all cubes that the node is within
 
-    public Node(ref GameObject nodeObjectReference, Vector3 center)
+    public void AddCubeRef(int cubeIndex, int vertexIndex)
     {
+        cubeReference.Add(new CubeReference(cubeIndex,vertexIndex));
+    }
+
+    public List<CubeReference> GetCubeRefList()
+    {
+        return cubeReference;
+    }
+
+    public CubeReference GetCubeRef(int index)
+    {
+        return cubeReference[index];
+    }
+    public Node(ref GameObject nodeObjectReference, Vector3 center, int indexArg)
+    {
+        cubeReference = new List<CubeReference>();
+
         NodeProperties nodeScript = nodeObjectReference.GetComponent<NodeProperties>();
         surfaceLevel = CalculateMetaballs(nodeObjectReference.transform.position, center);
         nodeScript.SetSurfaceValue(surfaceLevel);
         nodeObject = nodeObjectReference;
         position = nodeObject.transform.position;
+        index = indexArg;   //keeps track of index within node class
+        nodeScript.index = indexArg;   //keeps track of position within nodeHandler
     }
 
     public float CalculateMetaballs(Vector3 position, Vector3 center) //returns the value that a node should be, creating a circular shape
@@ -276,10 +348,16 @@ public class CubeHandler
         cubeList[cubeListAmount++] = new Cube(nodeList, cubeListAmount);
     }
 
+    public ref Cube GetCube(int position)
+    {
+        return ref cubeList[position];
+    }
+
     public Cube[] GetList()
     {
         return cubeList;
     }
+
 }
 
 public class Cube
@@ -306,7 +384,7 @@ public class Cube
         CalculateCenter();
     }
 
-    public Vector3 getCenter()
+    public Vector3 GetCenter()
     {
         return center;
     }
@@ -322,4 +400,10 @@ public class Cube
         center = new Vector3((x1 + x2) / 2, (y1 + y2) / 2, (z1 + z2) / 2);
     }
 
+    public void UpdateVerticeSurfaceValue(int position, float value)
+    {
+        vertices[position].surfaceLevel = value;
+    }
+
 }
+

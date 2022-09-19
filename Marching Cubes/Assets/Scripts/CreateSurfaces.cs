@@ -322,15 +322,20 @@ int[,] cornerIndexFromEdge = {
 {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}};
 
     Mesh mesh;
+    MeshCollider meshCollider;
     Vector3[] vertices;
     int[] triangles;
 
     // Start is called before the first frame update
     void Start()
     {
+
         createPoints = this.gameObject.GetComponent<CreatePoints>();    //allows script to have access to the nodes
         mesh = new Mesh();
         mesh = GetComponent<MeshFilter>().mesh;
+
+        meshCollider = this.gameObject.AddComponent<MeshCollider>();
+        meshCollider.sharedMesh = mesh;
 
         //StartCoroutine(drawTriangles());
 
@@ -418,6 +423,8 @@ int[,] cornerIndexFromEdge = {
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.RecalculateNormals();
+
+        meshCollider.sharedMesh = mesh;
     }
 
     // Update is called once per frame
@@ -425,6 +432,7 @@ int[,] cornerIndexFromEdge = {
     {
         DrawTriangles();
         updateMesh();
+
     }
 
     //Calculates the proper index of the cube configuration by using binary in order to represent all edges as a single digit in a short
