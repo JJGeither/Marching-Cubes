@@ -9,20 +9,24 @@ public class BrushTool : MonoBehaviour
     public float incrementStrength;
     public float growthSpeed;
     public int zDistance;
-    private bool isDrawing = false;
+    public bool isDrawing = false;
 
     public KeyCode increaseKey;
     public KeyCode decreaseKey;
     public KeyCode increaseRadius;
     public KeyCode decreaseRadius;
 
+    public Sprite ringSprite;
+
     [SerializeField] private Camera mainCamera;
     [SerializeField] private LayerMask layerMask;
     // Start is called before the first frame update
-
+    private void Start()
+    {
+    }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
 
         mousePosition = Input.mousePosition;
@@ -44,7 +48,7 @@ public class BrushTool : MonoBehaviour
 
         Ray ray = mainCamera.ScreenPointToRay(mousePosition);
 
-        if(!isDrawing)  //prevents cursor from moving to prevent 'janky' drawing
+        //if(!isDrawing)  //prevents cursor from moving to prevent 'janky' drawing
         {
             if (Physics.Raycast(ray, out RaycastHit raycastHit, float.MaxValue, layerMask))
             {

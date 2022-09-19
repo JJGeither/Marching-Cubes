@@ -10,6 +10,11 @@ public class CreateSurfaces : MonoBehaviour
     [Range(0, 200)] public int cubeSelected;
     public CreatePoints createPoints;
 
+    public GameObject brushObject;
+    public BrushTool brushTool;
+
+    public bool hasRendered = false;    //toggles when original mesh renders
+
     int[] edgeTable = {
 0x0  , 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c,
 0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00,
@@ -331,14 +336,12 @@ int[,] cornerIndexFromEdge = {
     {
 
         createPoints = this.gameObject.GetComponent<CreatePoints>();    //allows script to have access to the nodes
+        brushTool = brushObject.gameObject.GetComponent<BrushTool>();    //allows script to have access to the nodes
         mesh = new Mesh();
         mesh = GetComponent<MeshFilter>().mesh;
 
         meshCollider = this.gameObject.AddComponent<MeshCollider>();
         meshCollider.sharedMesh = mesh;
-
-        //StartCoroutine(drawTriangles());
-
     }
 
     public Vector3 InterpolateEdge(Node p1, Node p2, float surfaceRange)
@@ -430,8 +433,13 @@ int[,] cornerIndexFromEdge = {
     // Update is called once per frame
     void Update()
     {
-        DrawTriangles();
-        updateMesh();
+        if (brushTool.isDrawing || !hasRendered)    //only updates mesh when drawing to prevent lag
+        {
+            hasRendered = true;
+            DrawTriangles();
+            updateMesh();
+        }
+
 
     }
 
