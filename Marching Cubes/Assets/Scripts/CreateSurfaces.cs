@@ -8,14 +8,19 @@ using System;
 [RequireComponent(typeof(MeshFilter))]
 public class CreateSurfaces : MonoBehaviour
 {
-    [Range(0, 200)] public int cubeSelected;
+    [Range(0, 200)] public int cubeSelected;    
     public CreatePoints createPoints;
     public BrushTool brushObj;
     private BrushTool brushTool;
+    Mesh mesh;
+    MeshCollider meshCollider;
+    Vector3[] vertices;
+    int[] triangles;
+    int cubeListAmount;
 
     private bool hasRendered = false;
 
-    int[] edgeTable = {
+    readonly int[] edgeTable = {
 0x0  , 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c,
 0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00,
 0x190, 0x99 , 0x393, 0x29a, 0x596, 0x49f, 0x795, 0x69c,
@@ -326,18 +331,9 @@ int[,] cornerIndexFromEdge = {
 {0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
 {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}};
 
-    Mesh mesh;
-    MeshCollider meshCollider;
-    Vector3[] vertices;
-    int[] triangles;
-    int cubeListAmount;
-
-
-
     // Start is called before the first frame update
     void Start()
     {
-
         createPoints = this.gameObject.GetComponent<CreatePoints>();    //allows script to have access to the nodes
         mesh = new Mesh();
         mesh = GetComponent<MeshFilter>().mesh;
@@ -351,12 +347,12 @@ int[,] cornerIndexFromEdge = {
 
         vertices = new Vector3[(cubeListAmount + 1) * 12];  //amount of vertices within the chunk
         triangles = new int[(cubeListAmount + 1) * 15];
-
     }
 
-    public Vector3 InterpolateEdge(Node p1, Node p2, float surfaceRange)
+    public Vector3 InterpolateEdge(Node p1, Node p2, float surfaceRange)    //interpolates between vertices in order to create smoother meshes
     {
         {
+            //Credit for formula: http://paulbourke.net/geometry/polygonise/
             float mu;
             Vector3 p;
 
@@ -435,7 +431,6 @@ int[,] cornerIndexFromEdge = {
     {
         mesh.Clear();
 
-       
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.RecalculateNormals();
@@ -455,8 +450,6 @@ int[,] cornerIndexFromEdge = {
             DrawTriangles();
             UpdateMesh();
         }
-
-
     }
 
     //Calculates the proper index of the cube configuration by using binary in order to represent all edges as a single digit in a short

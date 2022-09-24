@@ -32,17 +32,19 @@ public class NodeProperties : MonoBehaviour
 
     public void UpdateVisibility()
     {
-        if (CubeArea.GetComponent<CreatePoints>().renderAllNodes)   //renders all nodes
+        if (CubeArea.GetComponent<CreatePoints>().renderAllNodes) //renders all nodes
         {
             this.GetComponent<Renderer>().enabled = true;
-        } else if (CubeArea.GetComponent<CreatePoints>().renderNodes)  //renders node within the mesh
+        }
+        else if (CubeArea.GetComponent<CreatePoints>().renderNodes) //renders node within the mesh
         {
             if (CubeArea.GetComponent<CreatePoints>().surfaceRange <= surfaceValue)
             {
                 this.GetComponent<Renderer>().enabled = true;
             }
             else gameObject.GetComponent<Renderer>().enabled = false;
-        } else
+        }
+        else
         {
             gameObject.GetComponent<Renderer>().enabled = false;
         }
@@ -54,9 +56,9 @@ public class NodeProperties : MonoBehaviour
         return surfaceValue;
     }
 
-    public void SetSurfaceValue(float value)    //used for initial creation of nodea
+    public void SetSurfaceValue(float value) //used for initial creation of nodea
     {
-        surfaceValue = value;   //new surface value
+        surfaceValue = value; //new surface value
     }
 
     public void UpdateAllNodeReferences(float value) //used to update all instances of nodes 
@@ -64,11 +66,11 @@ public class NodeProperties : MonoBehaviour
         NodeHandler nodeHandler = CubeArea.GetComponent<CreatePoints>().nodeHandler;
         CubeHandler cubeHandler = CubeArea.GetComponent<CreatePoints>().cubeHandler;
 
-        surfaceValue = value;   //new surface value
+        surfaceValue = value; //new surface value
 
         //updates the nodehandler to reflect this change in value
         Node node = nodeHandler.GetNode(index);
-        node.surfaceLevel = value;  //new surfae value in nodeHandler
+        node.surfaceLevel = value; //new surfae value in nodeHandler
 
         //Updates all the cubes in which a node touches instead of every single cube
         foreach (var cubeRef in node.GetCubeRefList())

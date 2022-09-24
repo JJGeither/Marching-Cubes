@@ -18,13 +18,10 @@ public class BrushTool : MonoBehaviour
 
     [SerializeField] private Camera mainCamera;
     [SerializeField] private LayerMask layerMask;
-    // Start is called before the first frame update
-
 
     // Update is called once per frame
     void Update()
     {
-
         mousePosition = Input.mousePosition;
 
         //input to adjust size of sphere
@@ -54,8 +51,6 @@ public class BrushTool : MonoBehaviour
             this.transform.position = mainCamera.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, zDistance));
         }
 
-
-
         if (Input.GetKey(increaseKey))    //increases material
         {
             BrushDraw(1);
@@ -65,9 +60,6 @@ public class BrushTool : MonoBehaviour
         {
             BrushDraw(-1);
         }
-
-
-
     }
 
     public void BrushDraw(int sign) //the sign determines if material is added or subtracted
@@ -83,10 +75,4 @@ public class BrushTool : MonoBehaviour
             }
         }
     }
-
-    public void OnDrawGizmos()
-    {
-        
-    }
-
 }

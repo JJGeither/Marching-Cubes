@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class CreatePoints : MonoBehaviour
 {
-
     //list of variables
     [Range(0f, 100)] public float surfaceRange;
     [Range(0f, 10000)] public float cubeRange;
@@ -19,8 +18,6 @@ public class CreatePoints : MonoBehaviour
     public GameObject nodePrefab;
     public NodeHandler nodeHandler;
     public CubeHandler cubeHandler;
-
-    //references to other objects
 
     // Start is called before the first frame update
     void Start()
@@ -59,7 +56,6 @@ public class CreatePoints : MonoBehaviour
   
             }
         }
-
     }
 
     //Calculates the corner of the shape with the lowest positional value
@@ -98,7 +94,6 @@ public class CreatePoints : MonoBehaviour
 
     public void CreateCubes(ref NodeHandler nodeHandler)
     {
-
         for (int i = 0; i < nodeHandler.GetAmount() - (SizeToNumberOfNodes('y') * SizeToNumberOfNodes('z')); i++) //subtracts from size.z and size.y so that it doesn't go out of bounds
         {
             if (To3D(i, 'z') < SizeToNumberOfNodes('z') - 1 && To3D(i, 'y') < SizeToNumberOfNodes('y') - 1) //if the cube has not reached the end of the z and y axis
@@ -141,7 +136,6 @@ public class CreatePoints : MonoBehaviour
                 Debug.Log("ERROR: Invalid Entry");
                 return -1;
         }
-
     }
 
     public Node[] GetEdges(ref NodeHandler nodeHandler, int node) //returns the array index of a node's neighbors
@@ -155,10 +149,7 @@ public class CreatePoints : MonoBehaviour
         neighbors[2] = nodeHandler.GetNode(node + ((int)(size.z / nodeSize) + 1) * ((int)(size.y / nodeSize) + 1) + 1); //the neighbor diagonally to the node on the x and z axis
         neighbors[7] = nodeHandler.GetNode(node + ((int)(size.z / nodeSize) + 1) * ((int)(size.y / nodeSize) + 1) + (int)(size.z / nodeSize) + 1); //the neighbor diagonally across from the node on the y and x axis
         neighbors[6] = nodeHandler.GetNode(node + ((int)(size.z / nodeSize) + 1) * ((int)(size.y / nodeSize) + 1) + (int)(size.z / nodeSize) + 2); //neighbor directly diagonally from the node
-
         return neighbors;
-
-
 
         //     5___________6
         //     |`          :\
@@ -213,9 +204,6 @@ public class CreatePoints : MonoBehaviour
     }
 }
 
-
-
-
 //Class that stores a list of all the node objects
 public class NodeHandler
 {
@@ -253,7 +241,6 @@ public class CubeReference
     //makes it easier to update the nodes during runtime
     public int containedCube;  //keeps track of which cubes the node resides in
     public int containedVertices;  //keeps track of which vertice position within the cube that the node resides, position correlate with the containedCubeList
-
     public CubeReference(int cubeIndex, int vertexIndex)
     {
         containedCube = cubeIndex;
@@ -293,6 +280,7 @@ public class Node //class of nodes
     {
         return cubeReference[index];
     }
+
     public Node(ref GameObject nodeObjectReference, Vector3 center, int indexArg)
     {
         cubeReference = new List<CubeReference>();
@@ -329,7 +317,6 @@ public class Node //class of nodes
     {
         return position.z;
     }
-
 }
 
 public class CubeHandler
@@ -357,7 +344,6 @@ public class CubeHandler
     {
         return cubeList;
     }
-
 }
 
 public class Cube
@@ -404,6 +390,5 @@ public class Cube
     {
         vertices[position].surfaceLevel = value;
     }
-
 }
 
