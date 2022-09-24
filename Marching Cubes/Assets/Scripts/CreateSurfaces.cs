@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System;
 
 
 [RequireComponent(typeof(MeshFilter))]
@@ -9,6 +10,10 @@ public class CreateSurfaces : MonoBehaviour
 {
     [Range(0, 200)] public int cubeSelected;
     public CreatePoints createPoints;
+    public BrushTool brushObj;
+    private BrushTool brushTool;
+
+    private bool hasRendered = false;
 
     int[] edgeTable = {
 0x0  , 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c,
@@ -325,6 +330,9 @@ int[,] cornerIndexFromEdge = {
     MeshCollider meshCollider;
     Vector3[] vertices;
     int[] triangles;
+    int cubeListAmount;
+
+
 
     // Start is called before the first frame update
     void Start()
@@ -337,7 +345,12 @@ int[,] cornerIndexFromEdge = {
         meshCollider = this.gameObject.AddComponent<MeshCollider>();
         meshCollider.sharedMesh = mesh;
 
-        //StartCoroutine(drawTriangles());
+        brushTool = brushObj.gameObject.GetComponent<BrushTool>();
+
+        cubeListAmount = createPoints.cubeHandler.cubeListAmount;   //amount of cubes within the chunk
+
+        vertices = new Vector3[(cubeListAmount + 1) * 12];  //amount of vertices within the chunk
+        triangles = new int[(cubeListAmount + 1) * 15];
 
     }
 
@@ -366,36 +379,39 @@ int[,] cornerIndexFromEdge = {
 
     public void DrawTriangles()
     {
-        int test = createPoints.cubeHandler.cubeListAmount;
-
-        vertices = new Vector3[test * 12];
-        triangles = new int[test * 15];
+        hasRendered = true;
 
         int numCube = 0;  //keeps track of the number of cubes and their polygons rendered for access
         int numTris = 0;
 
+        short cubeBinary;   //used to determine which edges are being intersected within a cube
+
+        int i, j;   //loop variables
+
+        int indexA,indexB;  //used to interpolate between two vertices
+
+        Vector3 vertexPos;  //the interpolated position
+
         foreach (Cube cube in createPoints.cubeHandler.cubeList)
         {
-            //  if (cube.index <= createPoints.renderRange)
             {
                 //renders single instance of cube configuration
-                short cubeBinary = CalculateBinaryCubeIndex(cube);  //i.e 1000 0000 0000 1100 has edges 2, 3 and 15 being intersected
-
-                if (cubeBinary != 0)
+                cubeBinary = CalculateBinaryCubeIndex(cube);  //i.e 1000 0000 1100 has edges 2, 3 and 15 being intersected
+               
+                if (cubeBinary != 0)  //if cube is totally empty or full
                 {
                     //determines the vertices
-                    for (int i = 0; i < 12; i++)    //16 represents the edges of a cube
+                    for (i = 0; i < 12; i++)    //16 represents the edges of a cube
                     {
-                        int indexA = cornerIndexFromEdge[i, 0];
-                        int indexB = cornerIndexFromEdge[i, 1];
+                        indexA = cornerIndexFromEdge[i, 0];
+                        indexB = cornerIndexFromEdge[i, 1];
 
-                        Vector3 vertexPos = InterpolateEdge(cube.vertices[indexA], cube.vertices[indexB], createPoints.surfaceRange);
-                        //Vector3 vertexPos = (cube.vertices[indexA].GetPosition() + cube.vertices[indexB].GetPosition()) / 2;
+                        vertexPos = InterpolateEdge(cube.vertices[indexA], cube.vertices[indexB], createPoints.surfaceRange);   //interpolates between vertices in order to produce smoother mesh shapes
                         vertices[i + (numCube * 12)] = vertexPos;
                     }
 
                     //determines the triangles
-                    for (int j = 0; triTable[cubeBinary, j] != -1; j += 3)
+                    for (j = 0; triTable[cubeBinary, j] != -1; j += 3)
                     {
                         if (triTable[cubeBinary, j] != -1)
                         {
@@ -403,7 +419,6 @@ int[,] cornerIndexFromEdge = {
                             triangles[numTris + 1] = triTable[cubeBinary, j + 1] + (numCube * 12);
                             triangles[numTris] = triTable[cubeBinary, j + 2] + (numCube * 12);
                             numTris += 3;
-                            //Debug.Log("Cube#: " + numCube + " Tri#: " + numTris / 3);
                         }
                     }
                     numCube++;
@@ -416,22 +431,31 @@ int[,] cornerIndexFromEdge = {
 
     }
 
-    void updateMesh()
+    void UpdateMesh()
     {
         mesh.Clear();
 
+       
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.RecalculateNormals();
 
         meshCollider.sharedMesh = mesh;
+
+        Array.Clear(vertices,0,vertices.Length);    //clears both arrays for future use
+        Array.Clear(triangles, 0, triangles.Length);
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        DrawTriangles();
-        updateMesh();
+        if (brushTool.isDrawing || !hasRendered)
+        {
+            DrawTriangles();
+            UpdateMesh();
+        }
+
 
     }
 

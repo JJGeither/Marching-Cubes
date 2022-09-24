@@ -9,7 +9,7 @@ public class BrushTool : MonoBehaviour
     public float incrementStrength;
     public float growthSpeed;
     public int zDistance;
-    private bool isDrawing = false;
+    public bool isDrawing;
 
     public KeyCode increaseKey;
     public KeyCode decreaseKey;
@@ -44,21 +44,17 @@ public class BrushTool : MonoBehaviour
 
         Ray ray = mainCamera.ScreenPointToRay(mousePosition);
 
-        if(!isDrawing)  //prevents cursor from moving to prevent 'janky' drawing
+        if (Physics.Raycast(ray, out RaycastHit raycastHit, float.MaxValue, layerMask))
         {
-            if (Physics.Raycast(ray, out RaycastHit raycastHit, float.MaxValue, layerMask))
-            {
-                this.GetComponent<Renderer>().enabled = true;
-                transform.position = raycastHit.point;
-            }
-            else
-            {
-                this.transform.position = mainCamera.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, zDistance));
-            }
+            this.GetComponent<Renderer>().enabled = true;
+            this.transform.position = raycastHit.point;
+        }
+        else
+        {
+            this.transform.position = mainCamera.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, zDistance));
         }
 
 
- 
 
         if (Input.GetKey(increaseKey))    //increases material
         {
@@ -76,7 +72,7 @@ public class BrushTool : MonoBehaviour
 
     public void BrushDraw(int sign) //the sign determines if material is added or subtracted
     {
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, size / 2);
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, size / 2f);
         foreach (var hitCollider in hitColliders)
         {
             if (hitCollider.gameObject.name.Equals("Node(Clone)"))
@@ -86,6 +82,11 @@ public class BrushTool : MonoBehaviour
                 node.UpdateAllNodeReferences(value + (incrementStrength * sign));
             }
         }
+    }
+
+    public void OnDrawGizmos()
+    {
+        
     }
 
 }

@@ -79,7 +79,7 @@ public class CreatePoints : MonoBehaviour
 
     public int CalculateCubesAmount() //calculates the number of cubes that can fit into the shape
     {
-        return (int)(size.x / nodeSize) * (int)(size.y / nodeSize) * (int)(size.z / nodeSize);
+        return (int)(size.x / nodeSize) * (int)(size.y / nodeSize) * (int)(size.z / nodeSize) ;
     }
 
     public void CreateNodes(float nodeSize) //builds along the z-axis first, then the y-axis, the x-axis

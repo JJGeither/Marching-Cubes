@@ -157,9 +157,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   size: 3
-  incrementStrength: 30
+  incrementStrength: 50
   growthSpeed: 0.25
   zDistance: 20
+  isDrawing: 0
   increaseKey: 119
   decreaseKey: 115
   increaseRadius: 273
@@ -476,8 +477,8 @@ MonoBehaviour:
   renderCubes: 0
   renderNodes: 0
   renderAllNodes: 0
-  size: {x: 30, y: 30, z: 30}
-  nodeSize: 1
+  size: {x: 20, y: 20, z: 10}
+  nodeSize: 0.5
   nodePrefab: {fileID: 4991671390996712357, guid: 9513ff8e9806d874994388dbd56f16a9, type: 3}
 --- !u!4 &1905694049
 Transform:
@@ -508,6 +509,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cubeSelected: 0
   createPoints: {fileID: 0}
+  brushObj: {fileID: 325810784}
 --- !u!23 &1905694051
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -528,7 +530,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 15303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
