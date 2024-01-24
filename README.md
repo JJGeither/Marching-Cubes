@@ -4,6 +4,12 @@ Marching cubes is an algorithm used to create isosurfaces within a 3D field. It 
 
 This project was written in C# through Unity game engine.
 
+![alt text](https://github.com/JJGeither/Marching-Cubes/blob/main/MC_1.jpg)
+
+![alt text](https://github.com/JJGeither/Marching-Cubes/blob/main/MC_2.jpg)
+
+![alt text](https://github.com/JJGeither/Marching-Cubes/blob/main/MC_3.jpg)
+
 Resources used:
 http://paulbourke.net/geometry/polygonise/
 https://people.eecs.berkeley.edu/~jrs/meshpapers/LorensenCline.pdf
