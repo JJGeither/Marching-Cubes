@@ -24,10 +24,6 @@ The algorithm then takes these vertices and creates a mesh from these points.
 
 This can be used to create any desired shape by simply increasing the value of the nodes.
 
-![alt text](https://www.researchgate.net/publication/283259761/figure/fig4/AS:614127911313411@1523430912166/3D-segment-visualization-and-isosurface-rendering-using-marching-cube-in-YaDiV.png)
-
-Here is an example of the algorithm being used for MRI scans.
-
 Resources used:
 http://paulbourke.net/geometry/polygonise/
 https://people.eecs.berkeley.edu/~jrs/meshpapers/LorensenCline.pdf
